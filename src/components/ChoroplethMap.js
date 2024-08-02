@@ -1,11 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import axios from 'axios';
+import { Bar } from 'react-chartjs-2';
 import './ChoroplethMap.css';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+
+// Register components
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+);
 
 const ChoroplethMap = () => {
     const mapRef = useRef(null);
     const [geoJsonData, setGeoJsonData] = useState(null);
+    const [severityData, setSeverityData] = useState(null);
+    const [selectedLga, setSelectedLga] = useState('');
 
     useEffect(() => {
         // Fetch GeoJSON data
@@ -30,13 +44,13 @@ const ChoroplethMap = () => {
         }).addTo(map);
 
         const getColor = (d) => {
-            return d > 1500 ? '#800026' :
-                d > 1000 ? '#BD0026' :
-                    d > 700 ? '#E31A1C' :
-                        d > 500 ? '#FC4E2A' :
-                            d > 200 ? '#FD8D3C' :
-                                d > 100 ? '#FEB24C' :
-                                    '#00FF00';
+            return d > 100 ? '#800026' :
+                d > 200 ? '#BD0026' :
+                    d > 150 ? '#E31A1C' :
+                        d > 100 ? '#FC4E2A' :
+                            d > 50 ? '#FD8D3C' :
+                                d > 0 ? '#FEB24C' :
+                                    '#FFEDA0';
         };
 
         const style = (feature) => {
@@ -50,31 +64,23 @@ const ChoroplethMap = () => {
             };
         };
 
-        const highlightFeature = (e) => {
-            const layer = e.target;
-
-            layer.setStyle({
-                weight: 3,
-                color: '#666',
-                dashArray: '',
-                fillOpacity: 0.7
-            });
-
-            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                layer.bringToFront();
-            }
-        };
-
-        const resetHighlight = (e) => {
-            geoJson.resetStyle(e.target);
-        };
-
         const onEachFeature = (feature, layer) => {
             const { LGA_NAME, Count } = feature.properties;
             layer.bindPopup(`<strong>LGA Name:</strong> ${LGA_NAME}<br><strong>Number of Accidents:</strong> ${Count}`);
             layer.on({
-                mouseover: highlightFeature,
-                mouseout: resetHighlight
+                click: () => handleLgaClick(LGA_NAME),
+                mouseover: (e) => {
+                    const layer = e.target;
+                    layer.setStyle({
+                        weight: 3,
+                        color: '#666',
+                        dashArray: '',
+                        fillOpacity: 0.7
+                    });
+                },
+                mouseout: (e) => {
+                    geoJson.resetStyle(e.target);
+                }
             });
         };
 
@@ -89,13 +95,50 @@ const ChoroplethMap = () => {
         };
     }, [geoJsonData]);
 
+    const handleLgaClick = (lgaName) => {
+        setSelectedLga(lgaName);
+        axios.get(`http://localhost:5003/api/cycling/${lgaName}`)
+            .then(response => {
+                console.log('Fetched accident severity data:', response.data);
+                setSeverityData(response.data);
+            })
+            .catch(error => {
+                console.error('Error fetching accident severity data:', error);
+            });
+    };
+
+    const getBarChartData = () => {
+        if (!severityData) return { labels: [], datasets: [] };
+
+        const labels = Object.keys(severityData);
+        const data = Object.values(severityData);
+
+        return {
+            labels,
+            datasets: [
+                {
+                    label: 'Number of Accidents',
+                    data,
+                    backgroundColor: labels.map(label => {
+                        switch (label) {
+                            case 'Serious injury accident':
+                                return 'darkred';
+                            case 'Other injury accident':
+                                return 'orange';
+                            case 'Non-injury accident':
+                                return 'lightbrown';
+                            default:
+                                return 'blue';
+                        }
+                    })
+                }
+            ]
+        };
+    };
+
     return (
         <div className="accident-data-page">
-            <div className="search-section">
-                <button className="search-button">
-                    <i className="fas fa-search"></i> Region
-                </button>
-            </div>
+
             <div className="content-section">
                 <div className="map-container">
                     <div ref={mapRef} style={{ height: '600px' }}></div>
@@ -103,7 +146,19 @@ const ChoroplethMap = () => {
                 <div className="charts-container">
                     <div className="chart risk-assessment-chart">
                         <h3>Risk Assessment Of Bicycle Routes</h3>
-                        <img src="/path/to/risk-assessment-chart.png" alt="Risk Assessment Chart" />
+                        {selectedLga && severityData && (
+                            <Bar
+                                data={getBarChartData()}
+                                options={{
+                                    responsive: true,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    }
+                                }}
+                            />
+                        )}
                     </div>
                     <div className="chart pie-chart">
                         <h3>Description</h3>
