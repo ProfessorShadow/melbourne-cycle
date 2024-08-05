@@ -12,7 +12,7 @@ app.use(express.json());
 
 const pool = new Pool({
   user: 'postgres',
-  host: 'localhost',
+  host: 'ec2-100-25-223-65.compute-1.amazonaws.com',
   database: 'cycling',
   password: 'password',
   port: 5432,
