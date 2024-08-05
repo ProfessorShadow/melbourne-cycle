@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
@@ -11,15 +12,15 @@ app.use(cors());
 app.use(express.json());
 
 const pool = new Pool({
-  user: 'postgres',
-  host: 'ec2-100-25-223-65.compute-1.amazonaws.com',
-  database: 'cycling',
-  password: 'password',
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 });
 
 // Serve the static files from the React app
-app.use(express.static(path.join(__dirname, '../build')));
+app.use(express.static(path.join(__dirname, 'build')));
 
 // Serve GeoJSON file
 app.get('/api/geojson', (req, res) => {
@@ -78,9 +79,20 @@ app.get('/api/cycling/:lgaName', async (req, res) => {
   }
 });
 
+// Test endpoint to check database connection
+app.get('/api/test-connection', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW()');
+    res.json({ success: true, time: result.rows[0].now });
+  } catch (error) {
+    console.error('Error testing database connection:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Handles any requests that don't match the ones above
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build/index.html'));
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 app.listen(port, () => {
