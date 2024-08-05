@@ -18,6 +18,9 @@ const pool = new Pool({
   port: 5432,
 });
 
+// Serve the static files from the React app
+app.use(express.static(path.join(__dirname, '../build')));
+
 // Serve GeoJSON file
 app.get('/api/geojson', (req, res) => {
   const filePath = path.join(__dirname, 'data', 'lga_acc_count.geojson');
@@ -73,6 +76,11 @@ app.get('/api/cycling/:lgaName', async (req, res) => {
     console.error('Error querying database:', error.message);
     res.status(500).send('Server error');
   }
+});
+
+// Handles any requests that don't match the ones above
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build/index.html'));
 });
 
 app.listen(port, () => {
