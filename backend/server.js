@@ -12,10 +12,14 @@ app.use(express.json());
 
 const pool = new Pool({
   user: 'postgres',
-  host: 'http://ec2-100-25-223-65.compute-1.amazonaws.com', // Use localhost if the database is on the same instance
-  database: 'cycling',
-  password: 'abbas', // Use your PostgreSQL password
+  host: 'database-1.cdm6uyc6ggru.us-east-1.rds.amazonaws.com',
+  database: 'postgres',
+  password: 'password', // Use your PostgreSQL password
   port: 5432,
+  dialect: "postgres",
+  ssl: {
+    rejectUnauthorized: false
+  },
 });
 
 // Test database connection
@@ -47,7 +51,7 @@ app.get('/api/geojson', (req, res) => {
 });
 
 // Endpoint to fetch accident severity data based on LGA_NAME
-app.get('/api/cycling/', async (req, res) => {
+app.get('/api/postgres/:lgaName', async (req, res) => {
   const lgaName = req.params.lgaName;
   console.log(`Received request for LGA: ${lgaName}`);
 
@@ -88,9 +92,6 @@ app.get('/api/cycling/', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
-
-
-
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

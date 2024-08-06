@@ -23,7 +23,7 @@ const ChoroplethMap = () => {
 
     useEffect(() => {
         // Fetch GeoJSON data
-        axios.get('http://ec2-100-25-223-65.compute-1.amazonaws.com:5003/api/geojson')
+        axios.get('https://melbournecyclingd5c933e62dbe4f748dd4f4b6f33d8b1d6a90-dev.s3.amazonaws.com/lga_acc_count.geojson')
             .then(response => {
                 console.log('Fetched GeoJSON data:', response.data);
                 setGeoJsonData(response.data);
@@ -97,7 +97,7 @@ const ChoroplethMap = () => {
 
     const handleLgaClick = (lgaName) => {
         setSelectedLga(lgaName);
-        axios.get(`/api/cycling/${lgaName}`)
+        axios.get(`http://database-1.cdm6uyc6ggru.us-east-1.rds.amazonaws.com/api/postgres/${lgaName}`)
             .then(response => {
                 console.log('Fetched accident severity data:', response.data);
                 setSeverityData(response.data);
