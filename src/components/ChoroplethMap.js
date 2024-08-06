@@ -138,7 +138,6 @@ const ChoroplethMap = () => {
 
     return (
         <div className="accident-data-page">
-
             <div className="content-section">
                 <div className="map-container">
                     <div ref={mapRef} style={{ height: '600px' }}></div>

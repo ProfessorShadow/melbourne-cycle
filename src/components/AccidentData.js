@@ -2,7 +2,6 @@ import React from 'react';
 import ChoroplethMap from './ChoroplethMap';
 import Chart from './Chart';
 import './AccidentData.css';
-
 function AccidentData() {
     return (
         <div className="accident-data">

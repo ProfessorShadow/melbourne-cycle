@@ -12,14 +12,25 @@ app.use(express.json());
 
 const pool = new Pool({
   user: 'postgres',
-  host: 'ec2-100-25-223-65.compute-1.amazonaws.com',
+  host: 'ec2-100-25-223-65.compute-1.amazonaws.com', // Use localhost if the database is on the same instance
   database: 'cycling',
-  password: 'password',
+  password: 'abbas', // Use your PostgreSQL password
   port: 5432,
 });
 
-// Serve the static files from the React app
-app.use(express.static(path.join(__dirname, '../build')));
+// Test database connection
+pool.connect((err, client, release) => {
+  if (err) {
+    return console.error('Error acquiring client', err.stack);
+  }
+  client.query('SELECT NOW()', (err, result) => {
+    release();
+    if (err) {
+      return console.error('Error executing query', err.stack);
+    }
+    console.log('Connected to the database:', result.rows);
+  });
+});
 
 // Serve GeoJSON file
 app.get('/api/geojson', (req, res) => {
@@ -36,7 +47,7 @@ app.get('/api/geojson', (req, res) => {
 });
 
 // Endpoint to fetch accident severity data based on LGA_NAME
-app.get('ec2-100-25-223-65.compute-1.amazonaws.com:5003/api/cycling/:lgaName', async (req, res) => {
+app.get('/api/cycling/', async (req, res) => {
   const lgaName = req.params.lgaName;
   console.log(`Received request for LGA: ${lgaName}`);
 
@@ -78,10 +89,8 @@ app.get('ec2-100-25-223-65.compute-1.amazonaws.com:5003/api/cycling/:lgaName', a
   }
 });
 
-// Handles any requests that don't match the ones above
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build/index.html'));
-});
+
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
