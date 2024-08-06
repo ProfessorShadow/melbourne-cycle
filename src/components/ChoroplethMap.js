@@ -97,7 +97,7 @@ const ChoroplethMap = () => {
 
     const handleLgaClick = (lgaName) => {
         setSelectedLga(lgaName);
-        axios.get(`http://ec2-100-25-223-65.compute-1.amazonaws.com:5003/api/cycling/${lgaName}`)
+        axios.get(`/api/cycling/${lgaName}`)
             .then(response => {
                 console.log('Fetched accident severity data:', response.data);
                 setSeverityData(response.data);
@@ -137,7 +137,7 @@ const ChoroplethMap = () => {
     };
 
     return (
-        <div className="accident-data-page">
+        <div className="accident-data">
             <div className="content-section">
                 <div className="map-container">
                     <div ref={mapRef} style={{ height: '600px' }}></div>

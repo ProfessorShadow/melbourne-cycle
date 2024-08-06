@@ -12,7 +12,7 @@ app.use(express.json());
 
 const pool = new Pool({
   user: 'postgres',
-  host: 'ec2-100-25-223-65.compute-1.amazonaws.com', // Use localhost if the database is on the same instance
+  host: 'http://ec2-100-25-223-65.compute-1.amazonaws.com', // Use localhost if the database is on the same instance
   database: 'cycling',
   password: 'abbas', // Use your PostgreSQL password
   port: 5432,
