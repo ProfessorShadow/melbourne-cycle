@@ -16,23 +16,37 @@ const pool = new Pool({
   database: 'postgres',
   password: 'password', // Use your PostgreSQL password
   port: 5432,
-  dialect: "postgres",
   ssl: {
     rejectUnauthorized: false
   },
 });
 
-// Test database connection
+// Test database connection and fetch database name
 pool.connect((err, client, release) => {
   if (err) {
-    return console.error('Error acquiring client', err.stack);
+    console.error('Error acquiring client', err.stack);
+    return;
   }
-  client.query('SELECT NOW()', (err, result) => {
-    release();
+  client.query('SELECT current_database()', (err, result) => {
     if (err) {
-      return console.error('Error executing query', err.stack);
+      release();
+      console.error('Error executing query', err.stack);
+      return;
     }
-    console.log('Connected to the database:', result.rows);
+    console.log('Connected to the database:', result.rows[0].current_database);
+
+    // Perform a simple query to list tables
+    client.query('SELECT tablename FROM pg_tables WHERE schemaname = \'public\'', (err, result) => {
+      release();
+      if (err) {
+        console.error('Error executing query', err.stack);
+        return;
+      }
+      console.log('Tables in the database:');
+      result.rows.forEach(row => {
+        console.log(row.tablename);
+      });
+    });
   });
 });
 
@@ -56,6 +70,7 @@ app.get('/api/postgres/:lgaName', async (req, res) => {
   console.log(`Received request for LGA: ${lgaName}`);
 
   try {
+    console.log(`Connecting to the database to get data for LGA: ${lgaName}`);
     const result = await pool.query(`
       SELECT severity, "count" as count 
       FROM lga_accidents 

@@ -21,6 +21,16 @@ const ChoroplethMap = () => {
     const [severityData, setSeverityData] = useState(null);
     const [selectedLga, setSelectedLga] = useState('');
 
+    const getColor = (d) => {
+        return d > 2500 ? '#800026' :
+            d > 1500 ? '#BD0026' :
+                d > 1000 ? '#E31A1C' :
+                    d > 750 ? '#FC4E2A' :
+                        d > 500 ? '#FD8D3C' :
+                            d > 200 ? '#FEB24C' :
+                                '#FFEDA0';
+    };
+
     useEffect(() => {
         // Fetch GeoJSON data
         axios.get('https://melbournecyclingd5c933e62dbe4f748dd4f4b6f33d8b1d6a90-dev.s3.amazonaws.com/lga_acc_count.geojson')
@@ -42,16 +52,6 @@ const ChoroplethMap = () => {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
-
-        const getColor = (d) => {
-            return d > 100 ? '#800026' :
-                d > 200 ? '#BD0026' :
-                    d > 150 ? '#E31A1C' :
-                        d > 100 ? '#FC4E2A' :
-                            d > 50 ? '#FD8D3C' :
-                                d > 0 ? '#FEB24C' :
-                                    '#FFEDA0';
-        };
 
         const style = (feature) => {
             return {
@@ -89,6 +89,8 @@ const ChoroplethMap = () => {
             onEachFeature
         }).addTo(map);
 
+
+
         // Clean up on unmount
         return () => {
             map.remove();
@@ -97,7 +99,8 @@ const ChoroplethMap = () => {
 
     const handleLgaClick = (lgaName) => {
         setSelectedLga(lgaName);
-        axios.get(`http://database-1.cdm6uyc6ggru.us-east-1.rds.amazonaws.com/api/postgres/${lgaName}`)
+        console.log(`Making request to fetch data for LGA: ${lgaName}`);
+        axios.get(`http://localhost:5003/api/postgres/${lgaName}`)
             .then(response => {
                 console.log('Fetched accident severity data:', response.data);
                 setSeverityData(response.data);
@@ -137,7 +140,12 @@ const ChoroplethMap = () => {
     };
 
     return (
-        <div className="accident-data">
+        <div className="accident-data-page">
+            <div className="search-section">
+                <button className="search-button">
+                    <i className="fas fa-search"></i> Region
+                </button>
+            </div>
             <div className="content-section">
                 <div className="map-container">
                     <div ref={mapRef} style={{ height: '600px' }}></div>
@@ -163,6 +171,19 @@ const ChoroplethMap = () => {
                         <h3>Description</h3>
                         <img src="/path/to/pie-chart.png" alt="Pie Chart" />
                     </div>
+                </div>
+            </div>
+            {/* Add legend here */}
+            <div className="legend">
+                <h4>Number of Accidents</h4>
+                <div className="legend-content">
+                    <div><span style={{ background: getColor(2501) }} className="legend-box"></span> > 2500</div>
+                    <div><span style={{ background: getColor(1501) }} className="legend-box"></span> 1501 - 2500</div>
+                    <div><span style={{ background: getColor(1001) }} className="legend-box"></span> 1001 - 1500</div>
+                    <div><span style={{ background: getColor(751) }} className="legend-box"></span> 751 - 1000</div>
+                    <div><span style={{ background: getColor(501) }} className="legend-box"></span> 501 - 750</div>
+                    <div><span style={{ background: getColor(201) }} className="legend-box"></span> 201 - 500</div>
+                    <div><span style={{ background: getColor(0) }} className="legend-box"></span> 0 - 200</div>
                 </div>
             </div>
         </div>
