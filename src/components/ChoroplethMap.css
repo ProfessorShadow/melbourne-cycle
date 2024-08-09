@@ -99,7 +99,6 @@ body {
     box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
 }
 
-<<<<<<< HEAD
 /* Style for the legend */
 .legend {
     width: 100%;
@@ -119,8 +118,7 @@ body {
 
 .legend-box {
     display: flex;
-    justify-content: flex-start;
-    align-items: center;
+    justify-content: ;
     width: 20px;
     height: 20px;
     margin-right: 5px;
@@ -131,34 +129,4 @@ body {
     color: #000;
     font-weight: 500;
     font-family: 'Helvetica', 'Times New Roman', Times, serif;
-=======
-.legend {
-    padding: 10px;
-    background: white;
-    line-height: 18px;
-    color: #555;
-}
-
-.legend h4 {
-    margin-bottom: 5px;
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.legend .legend-content {
-    display: flex;
-    flex-direction: column;
-}
-
-.legend .legend-content div {
-    display: flex;
-    align-items: center;
-}
-
-.legend .legend-content div span {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    margin-right: 5px;
->>>>>>> f435d88aafd71d4fd22f82639d98572baedecc85
 }

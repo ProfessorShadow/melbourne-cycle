@@ -91,7 +91,6 @@ const ChoroplethMap = () => {
         }).addTo(map);
 
 
-
         // Clean up on unmount
         return () => {
             map.remove();
@@ -101,11 +100,7 @@ const ChoroplethMap = () => {
     const handleLgaClick = (lgaName) => {
         setSelectedLga(lgaName);
         console.log(`Making request to fetch data for LGA: ${lgaName}`);
-<<<<<<< HEAD
         axios.get(`https://melbournecyclingd5c933e62dbe4f748dd4f4b6f33d8b1d6a90-dev.s3.amazonaws.com/region_severity.json`)
-=======
-        axios.get(`http://localhost:5003/api/postgres/${lgaName}`)
->>>>>>> f435d88aafd71d4fd22f82639d98572baedecc85
             .then(response => {
                 console.log('Fetched accident severity data:', response.data);
                 const accidentsData = response.data.split('\n').filter(line => line.trim() !== '').map(line => JSON.parse(line));
@@ -173,14 +168,6 @@ const ChoroplethMap = () => {
 
     return (
         <div className="accident-data-page">
-<<<<<<< HEAD
-=======
-            <div className="search-section">
-                <button className="search-button">
-                    <i className="fas fa-search"></i> Region
-                </button>
-            </div>
->>>>>>> f435d88aafd71d4fd22f82639d98572baedecc85
             <div className="content-section">
                 <div className="map-container">
                     <div ref={mapRef} style={{ height: '600px' }}></div>
